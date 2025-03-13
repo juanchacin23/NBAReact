@@ -4,6 +4,7 @@ import TeamCard from "../components/TeamsCard";
 import Navbar from "../components/Navbar";
 import Button from "../components/Button";
 import Search from "../components/Search";
+import ScrollToTop from "../components/ScrollToTop";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -158,14 +159,8 @@ const HomePage = () => {
                 
 
         </div>
-
           
           
-          
-        
-
-          
-        
           <div className=" mb-2">
 
             {isLoading ? (
@@ -184,6 +179,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <ScrollToTop />
      
     </>
   )

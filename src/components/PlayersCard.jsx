@@ -68,7 +68,7 @@ const TiltCard = ({player: {first_name, last_name, position, height, weight, jer
           transformStyle: "preserve-3d",
           
         }}
-        className="absolute inset-0 grid rounded-xl bg-white shadow-lg  border-1 transition-all duration-500 ease-in-out "
+        className="absolute inset-0 grid rounded-xl bg-gray-800 text-white shadow-lg  border border-gray-700 transition-all duration-500 ease-in-out "
       >
 
         
@@ -89,7 +89,7 @@ const TiltCard = ({player: {first_name, last_name, position, height, weight, jer
           className="text-center text-xl font-bold  place-content-center"
         >
           
-          <p className="text-base">position: {position}</p> 
+          <p className="text-base capitalize">position: {position ? <span> {position} </span> : <span>TBD</span>}</p> 
           
           
         </div>
@@ -100,13 +100,13 @@ const TiltCard = ({player: {first_name, last_name, position, height, weight, jer
 
       {/* layer when hovering */}
       <div
-          className={`absolute inset-0 flex flex-col  bg-black  text-white 
+          className={`absolute inset-0 flex flex-col  bg-black  text-white cursor-pointer
                     ${isSelected ? "opacity-100 scale-100" : "opacity-0 scale-85" } transition-all duration-800 text-center rounded-xl group-hover:opacity-100 group-hover:scale-100`}
         >
           <div className="font-bold grid grid-cols-2 flex-grow mt-2">
             
               <div className="">
-                <p className=""> {position} </p>
+              {position ? <p> {position} </p> : <p>unavailable</p>}
                 <p className=""> Position </p>
               </div>
               <div className="">

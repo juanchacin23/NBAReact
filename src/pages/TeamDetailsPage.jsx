@@ -3,6 +3,8 @@ import Spinner from "../components/Spinner";
 import PlayerCard from "../components/PlayersCard";
 import Navbar from "../components/Navbar";
 import { useParams } from 'react-router-dom';
+import ScrollToTop from '../components/ScrollToTop';
+import { RevealBento } from '../components/TeamDetailsSection';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -20,7 +22,12 @@ const TeamDetailsPage = () => {
 
   const { id } = useParams();
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const [teamErrorMessage, setTeamErrorMessage] = useState('');
+  const [playersErrorMessage, setPlayersErrorMessage] = useState('');
+  const [gamesErrorMessage, setGamesErrorMessage] = useState('');
+
+ 
+  
 
   const [playersList, setPlayersList] = useState([]);
 
@@ -37,7 +44,7 @@ const TeamDetailsPage = () => {
   const fetchNbaPlayersCurrentTeam = async () => {
 
     setIsLoading(true);
-    setErrorMessage('');
+    setPlayersErrorMessage('');
 
     /*
      // Verificar si los datos están en localStorage
@@ -64,16 +71,11 @@ const TeamDetailsPage = () => {
       
       
        if(data.Response === 'False') {
-        setErrorMessage(data.Error || 'Failed to fetch players');
+        setPlayersErrorMessage(data.Error || 'Failed to fetch players');
         setPlayersList([]);
         return;
       }
       
-
-       // filtering teams by division
-      const filteredTeams = data.data.filter(team => team.division);
-
-      console.log(filteredTeams);
       setPlayersList(data.data || []);
 
      
@@ -82,7 +84,7 @@ const TeamDetailsPage = () => {
 
     catch (error) {
       console.error(`Error fetching players: ${error}`);
-      setErrorMessage('Error fetching players. Please try again later.');
+      setPlayersErrorMessage('Error fetching players. Please try again later.');
 
     } finally {
       setIsLoading(false);
@@ -91,7 +93,7 @@ const TeamDetailsPage = () => {
   
 
   const fecthNbaGames = async () => {
-    setErrorMessage('');
+    setGamesErrorMessage('');
 
 
     try {
@@ -107,7 +109,7 @@ const TeamDetailsPage = () => {
       console.log(data);
       
        if(data.Response === 'False') {
-        setErrorMessage(data.Error || 'Failed to fetch games');
+        setGamesErrorMessage(data.Error || 'Failed to fetch games');
         setGamesList([]);
         return;
       }
@@ -119,7 +121,7 @@ const TeamDetailsPage = () => {
 
     catch (error) {
       console.error(`Error fetching games: ${error}`);
-      setErrorMessage('Error fetching games. Please try again later.');
+      setGamesErrorMessage('Error fetching games. Please try again later.');
 
     }
   }
@@ -128,7 +130,7 @@ const TeamDetailsPage = () => {
   const fetchNbaCurrentTeam = async () => {
 
     setIsLoading(true);
-    setErrorMessage('');
+    setTeamErrorMessage('');
 
     /*
      // Verificar si los datos están en localStorage
@@ -158,7 +160,7 @@ const TeamDetailsPage = () => {
       
       
        if(data.Response === 'False') {
-        setErrorMessage(data.Error || 'Failed to fetch nba team');
+        setTeamErrorMessage(data.Error || 'Failed to fetch nba team');
         setCurrentTeam([]);
         return;
       }
@@ -171,7 +173,7 @@ const TeamDetailsPage = () => {
 
     catch (error) {
       console.error(`Error fetching nba team: ${error}`);
-      setErrorMessage('Error fetching nba team. Please try again later.');
+      setTeamErrorMessage('Error fetching nba team. Please try again later.');
 
     } finally {
       setIsLoading(false);
@@ -206,28 +208,32 @@ const TeamDetailsPage = () => {
     <header>
       <Navbar />
     </header>
-      <header className='text-center text-2xl mt-8 '>NBA APP</header>
+      
 
     <section>
+
+    < RevealBento 
+      currentTeam={currentTeam}
+      isLoading={isLoading}
+      teamErrorMessage={teamErrorMessage}
+    />
+
       <div className='text-center mt-8 text-2xl'>
         
-      <h1>  full name: {currentTeam.full_name}</h1>
-      <h1>  conference: {currentTeam.conference}</h1>
-      <h1> Division:{currentTeam.division} City: {currentTeam.city} Name: {currentTeam.name} Full Name:{currentTeam.full_name} Abbreviation: {currentTeam.abbreviation}</h1>
       </div>
       
     </section>
       
     <section>
       
-      <div className='bg-red-500'>
+      <div className=''>
         <div  className='text-center mt-8 text-2xl'>Players</div>
         <div className="flex items-center justify-center text-2xl mt-8 mb-8">
         <p className='mr-2'>NBA Players of </p>
             {isLoading ? (
                 <Spinner/>
-              ) : errorMessage ? (
-                <p className="text-red-500">{errorMessage}</p>
+              ) : teamErrorMessage ? (
+                <p className="text-red-500">{teamErrorMessage}</p>
               ) : (
 
             <span> {currentTeam.full_name} </span>
@@ -240,10 +246,10 @@ const TeamDetailsPage = () => {
 
         {isLoading ? (
           <Spinner />
-        ) : errorMessage ? (
-          <p className="text-red-500">{errorMessage}</p>
+        ) : playersErrorMessage ? (
+          <p className="text-red-500">{playersErrorMessage}</p>
         ) : (
-          <ul className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 justify-items-center'>
+          <ul className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-4 justify-items-center'>
             {playersList.map((player) => (
               <PlayerCard 
                 key={player.id} 
@@ -261,6 +267,12 @@ const TeamDetailsPage = () => {
     <section> 
       <div className='text-center bg-red-800 mt-10'>Last 20 games of this team </div>
       <div>
+        
+      {isLoading ? (
+          <Spinner />
+        ) : gamesErrorMessage ? (
+          <p className="text-red-500">{gamesErrorMessage}</p>
+        ) : (
         <ul>
               {gamesList.map((game) => (
                 <li key={game.id}className='mt-4'>
@@ -268,8 +280,11 @@ const TeamDetailsPage = () => {
                 </li>
               ))}
         </ul>
+        )}
       </div>
     </section>
+
+    <ScrollToTop />
     </>
   )
 }
