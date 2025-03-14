@@ -211,7 +211,7 @@ const ConferenceBlock = ({currentTeam, isLoading, teamErrorMessage}) => {
   ? `/conference-logos/${currentTeam.conference.toLowerCase().replace(/ /g, '-')}.svg`
   : null;
 
-  console.log(conferenceSrc);
+  
 
   //const logoSrc = `/team-logos/${full_name.toLowerCase().replace(/ /g, '-')}.svg`;
   

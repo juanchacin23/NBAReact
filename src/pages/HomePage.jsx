@@ -62,6 +62,8 @@ const HomePage = () => {
 
       const data = await response.json();
       
+      console.log('whole data')
+      console.log(data.data);
       
        if(data.Response === 'False') {
         setErrorMessage(data.Error || 'Failed to fetch teams');
@@ -69,8 +71,8 @@ const HomePage = () => {
         return;
       }
 
-       // filtering teams by division
-      const filteredTeams = data.data.filter(team => team.division);
+       // filtering teams by conference
+      const filteredTeams = data.data.filter(team => team.conference === 'West' || team.conference === 'East');
 
       console.log(filteredTeams);
       setTeamsList(filteredTeams || []);

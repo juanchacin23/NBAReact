@@ -13,6 +13,8 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.0.12",
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
     "framer-motion": "^12.4.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

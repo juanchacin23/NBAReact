@@ -5,6 +5,8 @@ import Navbar from "../components/Navbar";
 import { useParams } from 'react-router-dom';
 import ScrollToTop from '../components/ScrollToTop';
 import { RevealBento } from '../components/TeamDetailsSection';
+import dayjs from 'dayjs';
+import GameCard from '../components/GameCard';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,8 +28,6 @@ const TeamDetailsPage = () => {
   const [playersErrorMessage, setPlayersErrorMessage] = useState('');
   const [gamesErrorMessage, setGamesErrorMessage] = useState('');
 
- 
-  
 
   const [playersList, setPlayersList] = useState([]);
 
@@ -45,16 +45,6 @@ const TeamDetailsPage = () => {
 
     setIsLoading(true);
     setPlayersErrorMessage('');
-
-    /*
-     // Verificar si los datos están en localStorage
-    const cachedData = localStorage.getItem('nbaPlayers');
-    if (cachedData) {
-      console.log("Cargando datos desde cache");
-      setPlayersList(JSON.parse(cachedData));
-      return;
-    }
-    */
 
     try {
       const endpoint = `${API_BASE_URL}/players?team_ids[]=${id}`;
@@ -92,55 +82,74 @@ const TeamDetailsPage = () => {
   }
   
 
-  const fecthNbaGames = async () => {
+  const fecthNbaGamesCurrentTeam = async () => {
     setGamesErrorMessage('');
-
-
+    setIsLoading(true);
+  
     try {
-      const endpoint = `${API_BASE_URL}/games?dates[]=2025-03-08&dates[]=2025-03-09`;
+      let games = [];
+      let monthsBack = 1; // Comenzar con un rango de 1 mes
+      const maxMonthsBack = 24; // Intentar hasta 2 años atrás
+      const maxGames = 20; // Queremos un máximo de 20 juegos
+  
+      while (games.length < maxGames && monthsBack <= maxMonthsBack) {
+        const today = new Date();
+        const endDate = new Date();
+        const startDate = new Date();
+  
+        // Ajustar el rango de fechas
+        startDate.setMonth(today.getMonth() - monthsBack);
+        endDate.setMonth(today.getMonth() - (monthsBack - 1));
+  
+        const endpoint = `${API_BASE_URL}/games?team_ids[]=${id}&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&per_page=100`;
+  
+        const response = await fetch(endpoint, API_OPTIONS);
+  
+        if (!response.ok) {
+          throw Error('Failed to fetch games');
+        }
+  
+        const data = await response.json();
+  
+        if (data.data.length > 0) {
+          games = [...games, ...data.data]; // Agregar los nuevos juegos a la lista
 
-      const response = await fetch(endpoint, API_OPTIONS);
+           // Detener el bucle si ya tenemos suficientes juegos
+          if (games.length >= maxGames) {
+            break;
+          }
+        }
 
-      if (!response.ok) {
-        throw Error('failed to fetch games');
+        monthsBack++; // Ampliar el rango de fechas
       }
-
-      const data = await response.json();
-      console.log(data);
-      
-       if(data.Response === 'False') {
-        setGamesErrorMessage(data.Error || 'Failed to fetch games');
+  
+      if (games.length === 0) {
+        setGamesErrorMessage('No games found for this team.');
         setGamesList([]);
         return;
       }
+  
+      // Ordenar los juegos por fecha (más recientes primero)
+      const sortedGames = games
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, maxGames); // Tomar solo los 20 juegos más recientes
+  
+      setGamesList(sortedGames);
 
-      // localStorage.setItem('nbaPlayers', JSON.stringify(data.response));
-
-      setGamesList(data.data || []);
-  }
-
-    catch (error) {
+      console.log(sortedGames);
+    } catch (error) {
       console.error(`Error fetching games: ${error}`);
       setGamesErrorMessage('Error fetching games. Please try again later.');
-
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
 
   const fetchNbaCurrentTeam = async () => {
 
     setIsLoading(true);
     setTeamErrorMessage('');
-
-    /*
-     // Verificar si los datos están en localStorage
-    const cachedData = localStorage.getItem('nbaPlayers');
-    if (cachedData) {
-      console.log("Cargando datos desde cache");
-      setPlayersList(JSON.parse(cachedData));
-      return;
-    }
-    */
 
     try {
       const endpoint = `${API_BASE_URL}/teams/${id}`;
@@ -152,12 +161,7 @@ const TeamDetailsPage = () => {
         throw Error('failed to fetch Nba team');
       }
 
-      const data = await response.json();
-
-      console.log('check this console log')
-      console.log (data.data);
-
-      
+      const data = await response.json();      
       
        if(data.Response === 'False') {
         setTeamErrorMessage(data.Error || 'Failed to fetch nba team');
@@ -189,7 +193,7 @@ const TeamDetailsPage = () => {
   }, []);
 
   useEffect(() => {
-    fecthNbaGames();
+    fecthNbaGamesCurrentTeam();
   }, []);
 
   useEffect(() => {
@@ -208,7 +212,6 @@ const TeamDetailsPage = () => {
     <header>
       <Navbar />
     </header>
-      
 
     <section>
 
@@ -218,10 +221,6 @@ const TeamDetailsPage = () => {
       teamErrorMessage={teamErrorMessage}
     />
 
-      <div className='text-center mt-8 text-2xl'>
-        
-      </div>
-      
     </section>
       
     <section>
@@ -264,25 +263,37 @@ const TeamDetailsPage = () => {
       </div>
     </section>
       
+    
     <section> 
-      <div className='text-center bg-red-800 mt-10'>Last 20 games of this team </div>
-      <div>
+      <div className='text-center text-2xl mt-4'>
+      Last Games of
+      {isLoading ? (
+                <Spinner/>
+              ) : teamErrorMessage ? (
+                <p className="text-red-500">{teamErrorMessage}</p>
+              ) : (
+
+            <span> {currentTeam.full_name} </span>
+
+          )}  
+      </div>
+      
         
       {isLoading ? (
           <Spinner />
         ) : gamesErrorMessage ? (
           <p className="text-red-500">{gamesErrorMessage}</p>
         ) : (
-        <ul>
+        <div className='container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
               {gamesList.map((game) => (
-                <li key={game.id}className='mt-4'>
-                  fecha{game.date} temporada{game.season} home {game.home_team.city} {game.home_team_score} - visitor {game.visitor_team.city} {game.visitor_team_score} 
-                </li>
+                <GameCard key={game.id} game={game}/>
+                
               ))}
-        </ul>
+        </div>
         )}
-      </div>
+      
     </section>
+      
 
     <ScrollToTop />
     </>
