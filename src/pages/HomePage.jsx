@@ -4,6 +4,7 @@ import TeamCard from "../components/TeamsCard";
 import Navbar from "../components/Navbar";
 import Button from "../components/Button";
 import Search from "../components/Search";
+import ScrollToTop from "../components/ScrollToTop";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -61,6 +62,8 @@ const HomePage = () => {
 
       const data = await response.json();
       
+      console.log('whole data')
+      console.log(data.data);
       
        if(data.Response === 'False') {
         setErrorMessage(data.Error || 'Failed to fetch teams');
@@ -68,8 +71,8 @@ const HomePage = () => {
         return;
       }
 
-       // filtering teams by division
-      const filteredTeams = data.data.filter(team => team.division);
+       // filtering teams by conference
+      const filteredTeams = data.data.filter(team => team.conference === 'West' || team.conference === 'East');
 
       console.log(filteredTeams);
       setTeamsList(filteredTeams || []);
@@ -158,14 +161,8 @@ const HomePage = () => {
                 
 
         </div>
-
           
           
-          
-        
-
-          
-        
           <div className=" mb-2">
 
             {isLoading ? (
@@ -184,6 +181,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <ScrollToTop />
      
     </>
   )
