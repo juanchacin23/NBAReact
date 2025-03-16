@@ -130,7 +130,13 @@ const SocialsBlock = (
         
           <h1 className={`pl-1 col-span-3 ${
               home_team_score > visitor_team_score ? 'text-white' : 'text-gray-400'
-            }`}>{home_team.full_name}</h1>
+            }`}>
+              
+            <a href={home_team.id}>
+              {home_team.full_name}
+            </a>
+              
+          </h1>
           <h1  
           className={`text-right ${
             home_team_score > visitor_team_score ? 'text-white' : 'text-gray-400'
@@ -153,11 +159,15 @@ const SocialsBlock = (
           </div>
 
 
+             
           <h1 className={`pl-1 col-span-3 ${
               visitor_team_score > home_team_score ? 'text-white' : 'text-gray-400'
             }`}
           >
-            {visitor_team.full_name}
+            <a href={visitor_team.id} >
+              {visitor_team.full_name}
+            </a>
+            
           </h1>
           <h1 
             className={`text-right ${
@@ -165,6 +175,7 @@ const SocialsBlock = (
             }`}>
             {visitor_team_score}
           </h1>
+        
 
       </div>
 
