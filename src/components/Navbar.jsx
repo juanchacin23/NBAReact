@@ -41,7 +41,7 @@ export default function Example() {
               <a href='/'>
                 <img
                   alt="Your Company"
-                  src="public/logoApp.svg"
+                  src="/logoApp.svg"
                   className="h-8 w-auto"
                 />
               </a>
